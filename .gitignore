@@ -1,0 +1,58 @@
+# Local environments and Python outputs
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Private manuals and PDF-derived caches
+manuals/*
+!manuals/.gitkeep
+*.[pP][dD][fF]
+.semantic_cache/
+.text_cache/
+.pdf_text_cache/
+debug_rag/
+
+# Generated reports, logs and temporary test data
+*.log
+*.tmp
+*.temp
+*.bak
+~$*
+document-search-test-*/
+test-output/
+test-outputs/
+test-results/
+benchmark_ground_truth_draft.json
+search_evaluation.json
+benchmark_hybrid_report.json
+mft_consistency_report.json
+technical_reasoning_report.json
+technical_reasoning_v2_report.json
+qwen_chat_diagnostic.json
+qwen_response_diagnostic.json
+*_diagnosis.txt
+
+# Local secrets and workstation configuration
+.env
+.env.*
+.streamlit/secrets.toml
+*.pem
+*.key
+*.p12
+*.pfx
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Internal publication audits
+github_publication_report.md
+github_file_plan.md
