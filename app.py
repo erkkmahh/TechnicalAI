@@ -76,9 +76,9 @@ def hybrid_search_tab(manuals):
                     and all(type(page) is int and page > 0 for page in source["description_pages"])):
                 pages = ", ".join(str(page) for page in source["description_pages"])
                 st.caption(
-                    f"Do?rulanm?? parametre kayna?? | Parametre: {source['parameter_number']} | "
+                    f"Doğrulanmış parametre kaynağı | Parametre: {source['parameter_number']} | "
                     f"Bit: {source['bit_number']} | Sembol: {source['symbol']} | "
-                    f"Ba?l?k PDF sayfas?: {source['heading_page']} | A??klama PDF sayfas?: {pages}")
+                    f"Başlık PDF sayfası: {source['heading_page']} | Açıklama PDF sayfası: {pages}")
     except (OSError, ValueError, KeyError, TypeError) as exc:
         st.error(f"Local hybrid search could not complete: {exc}")
 

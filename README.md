@@ -1,114 +1,114 @@
-# TechnicalAI ? v0.1 Experimental
+# TechnicalAI — v0.1 Experimental
 
-TechnicalAI, kullan?c?n?n kendi bilgisayar?ndaki yetkili PDF k?lavuzlar?nda arama yapmas?n? sa?layan deneysel bir Python uygulamas?d?r. Streamlit aray?z?; do?rudan metin aramas?, yerel ?ok dilli embedding aramas?, Hybrid Search ve parametre kaynak do?rulamas?n? bir araya getirir.
+TechnicalAI, kullanıcının kendi bilgisayarındaki yetkili PDF kılavuzlarında arama yapmasını sağlayan deneysel bir Python uygulamasıdır. Streamlit arayüzü; doğrudan metin araması, yerel çok dilli embedding araması, Hybrid Search ve parametre kaynak doğrulamasını bir araya getirir.
 
-PDF, model a??rl???, embedding cache'i veya ?zel de?erlendirme veri seti bu kaynak paketiyle da??t?lmaz. Kullan?c? yaln?z eri?im ve kullan?m yetkisine sahip oldu?u PDF'leri `manuals/` klas?r?ne kendisi eklemelidir. Bo? klas?rde uygulama a??l?r, PDF ekleme bilgisi g?sterir ve arama d??meleri devre d??? kal?r.
+PDF, model ağırlığı, embedding cache'i veya özel değerlendirme veri seti bu kaynak paketiyle dağıtılmaz. Kullanıcı yalnız erişim ve kullanım yetkisine sahip olduğu PDF'leri `manuals/` klasörüne kendisi eklemelidir. Boş klasörde uygulama açılır, PDF ekleme bilgisi gösterir ve arama düğmeleri devre dışı kalır.
 
-## Mimari ve ?zellikler
+## Mimari ve Özellikler
 
-| Bile?en | G?rev |
+| Bileşen | Görev |
 | --- | --- |
-| `app.py` | D?rt sekmeli yerel Streamlit aray?z? |
-| `main.py` | Document Search ve komut sat?r? giri? noktas? |
+| `app.py` | Dört sekmeli yerel Streamlit arayüzü |
+| `main.py` | Document Search ve komut satırı giriş noktası |
 | `semantic_search.py` | BGE-M3 embedding, cosine similarity ve yerel disk cache'i |
-| `hybrid_search.py` | Keyword s?ralamas?, RRF ve iste?e ba?l? do?rulanm?? kaynak geni?letme |
-| `hybrid_extraction_demo.py` | PDF ba?l???/b?l?m? ve yerle?im temelli deterministik kaynak do?rulama; ayr?ca iste?e ba?l? Qwen alan ??karma yolu |
-| `parameter_extractor.py`, `answer_checks.py`, `rag.py` | Metin alanlar?, kaynak kapsam?, kan?t ve s?n?rl? anlam kontrolleri; yerel AI a??klamas? |
+| `hybrid_search.py` | Keyword sıralaması, RRF ve isteğe bağlı doğrulanmış kaynak genişletme |
+| `hybrid_extraction_demo.py` | PDF başlığı/bölümü ve yerleşim temelli deterministik kaynak doğrulama; ayrıca isteğe bağlı Qwen alan çıkarma yolu |
+| `parameter_extractor.py`, `answer_checks.py`, `rag.py` | Metin alanları, kaynak kapsamı, kanıt ve sınırlı anlam kontrolleri; yerel AI açıklaması |
 
 ### Document Search
 
-Parametre numaras?, alarm kodu veya metin ifadesini yerel PDF'lerde arar. Say?lar?n daha uzun say?lar i?inde e?le?mesini ?nler; metin aramas? b?y?k/k???k harfe duyars?zd?r. E?le?meleri kaynak dosya, PDF sayfa konumu ve ?evre metniyle g?sterir. Ollama gerekmez.
+Parametre numarası, alarm kodu veya metin ifadesini yerel PDF'lerde arar. Sayıların daha uzun sayılar içinde eşleşmesini önler; metin araması büyük/küçük harfe duyarsızdır. Eşleşmeleri kaynak dosya, PDF sayfa konumu ve çevre metniyle gösterir. Ollama gerekmez.
 
-### Semantic Search ? BGE-M3
+### Semantic Search — BGE-M3
 
-Yerel Ollama `bge-m3` modeli T?rk?e sorgular? ve PDF metinlerini embedding vekt?rlerine d?n??t?r?r. Par?alar cosine similarity ile s?ralan?r; ilk be? sonu? g?sterilir. ?lk indeksleme belge embedding'lerini ?retir ve `.semantic_cache/` i?ine metinle birlikte kaydeder. Bu cache PDF kadar hassas kabul edilmeli ve payla??lmamal?d?r.
+Yerel Ollama `bge-m3` modeli Türkçe sorguları ve PDF metinlerini embedding vektörlerine dönüştürür. Parçalar cosine similarity ile sıralanır; ilk beş sonuç gösterilir. İlk indeksleme belge embedding'lerini üretir ve `.semantic_cache/` içine metinle birlikte kaydeder. Bu cache PDF kadar hassas kabul edilmeli ve paylaşılmamalıdır.
 
-Par?alar sayfa i?inde 1.200 karakter, 200 karakter ?rt??meyle olu?turulur. Model ad? ve PDF hash'i cache kullan?m?nda rol oynar; ayn? model ad? alt?nda de?i?en a??rl?klar?n digest'i takip edilmez. B?yle bir de?i?iklikte uygulama kapal?yken cache yeniden olu?turulmal?d?r.
+Parçalar sayfa içinde 1.200 karakter, 200 karakter örtüşmeyle oluşturulur. Model adı ve PDF hash'i cache kullanımında rol oynar; aynı model adı altında değişen ağırlıkların digest'i takip edilmez. Böyle bir değişiklikte uygulama kapalıyken cache yeniden oluşturulmalıdır.
 
-### Hybrid Search ? Keyword + RRF
+### Hybrid Search — Keyword + RRF
 
-Ge?erli mevcut cache'i kullan?r; belge embedding'lerini yeniden ?retmez. Sorgu i?in ger?ek BGE-M3 embedding'i gerekir. T?rk?e??ngilizce teknik terim e?lemesiyle keyword s?ralamas? olu?turulur ve semantic s?ralamayla e?it a??rl?kl? Reciprocal Rank Fusion uygulan?r:
+Geçerli mevcut cache'i kullanır; belge embedding'lerini yeniden üretmez. Sorgu için gerçek BGE-M3 embedding'i gerekir. Türkçe–İngilizce teknik terim eşlemesiyle keyword sıralaması oluşturulur ve semantic sıralamayla eşit ağırlıklı Reciprocal Rank Fusion uygulanır:
 
 ```text
 RRF = 1 / (60 + semantic_rank) + 1 / (60 + keyword_rank)
 ```
 
-Keyword e?le?mesi yoksa o katk? eklenmez. S?ralar birden ba?lar; sonu?lar par?a d?zeyindedir ve ayn? sayfa birden fazla kez d?nebilir. Eksik/eski cache i?in ?nce Semantic Search kullan?l?r. Benzerlik ve RRF skorlar? g?ven y?zdesi de?ildir.
+Keyword eşleşmesi yoksa o katkı eklenmez. Sıralar birden başlar; sonuçlar parça düzeyindedir ve aynı sayfa birden fazla kez dönebilir. Eksik/eski cache için önce Semantic Search kullanılır. Benzerlik ve RRF skorları güven yüzdesi değildir.
 
-Tam ve tekil `number#bit SYMBOL` sorgular?nda, ilk be?te ayn? kimli?i ta??yan ba?l?k bulunursa mevcut parser kaynak b?l?m?n? PDF'den ayr?ca okur. Kesin izole b?l?m, hizalanm?? yerle?im ve do?rulanm?? ana a??klama elde edilirse sonuca `parameter_source` metadata's? eklenir. ?? sayfal?k fallback ba?lam do?rulanm?? kaynak olarak kullan?lmaz. Ba?ar?s?z geni?letmede normal sonu? korunur.
+Tam ve tekil `number#bit SYMBOL` sorgularında, ilk beşte aynı kimliği taşıyan başlık bulunursa mevcut parser kaynak bölümünü PDF'den ayrıca okur. Kesin izole bölüm, hizalanmış yerleşim ve doğrulanmış ana açıklama elde edilirse sonuca `parameter_source` metadata'sı eklenir. Üç sayfalık fallback bağlam doğrulanmış kaynak olarak kullanılmaz. Başarısız genişletmede normal sonuç korunur.
 
-Aray?zde ?Do?rulanm?? parametre kayna??? sat?r? parametre, bit, sembol, ba?l?k ve a??klama PDF sayfalar?n? g?sterir. Bu ek bilgi ham ilk-be? s?ras?n?, skorlar? veya kaynak metnini de?i?tirmez. Ham retrieval ba?ar?s? ile geni?letilmi? a??klama kayna??na eri?im ayr? ?l??lmelidir.
+Arayüzde “Doğrulanmış parametre kaynağı” satırı parametre, bit, sembol, başlık ve açıklama PDF sayfalarını gösterir. Bu ek bilgi ham ilk-beş sırasını, skorları veya kaynak metnini değiştirmez. Ham retrieval başarısı ile genişletilmiş açıklama kaynağına erişim ayrı ölçülmelidir.
 
-### Deterministik parametre do?rulama ve AI Assistant
+### Deterministik parametre doğrulama ve AI Assistant
 
-Parser; numara/bit/sembol kimli?ini, sonraki ba?l?k s?n?r?n?, metadata'y?, font/konumu ve desteklenen devam d?zenlerini denetler. `extract_source(..., include_layout=True, pdf_path=...)` model ?a?r?s? yapmadan kullan?labilir. `pdf_path` verilmezse eski `manuals/ParameterManual.pdf` varsay?lan? korunur.
+Parser; numara/bit/sembol kimliğini, sonraki başlık sınırını, metadata'yı, font/konumu ve desteklenen devam düzenlerini denetler. `extract_source(..., include_layout=True, pdf_path=...)` model çağrısı yapmadan kullanılabilir. `pdf_path` verilmezse eski `manuals/ParameterManual.pdf` varsayılanı korunur.
 
-AI Assistant'?n a??k bit sorgusu yolu bu sabit varsay?lan dosyay? kullan?r; klas?rde ba?ka bir PDF bulunmas? bu yolu ?al??t?rmaya yetmez. Kullan?c?n?n yetkili ve parser ile uyumlu belgesi gerekir; rastgele bir PDF'nin ad?n? de?i?tirmek uyumluluk sa?lamaz. Bu yol Qwen ile alan ??kar?p deterministik olarak kontrol eder; her sorgu i?in T?rk?e serbest a??klama ?retmez.
+AI Assistant'ın açık bit sorgusu yolu bu sabit varsayılan dosyayı kullanır; klasörde başka bir PDF bulunması bu yolu çalıştırmaya yetmez. Kullanıcının yetkili ve parser ile uyumlu belgesi gerekir; rastgele bir PDF'nin adını değiştirmek uyumluluk sağlamaz. Bu yol Qwen ile alan çıkarıp deterministik olarak kontrol eder; her sorgu için Türkçe serbest açıklama üretmez.
 
-Genel RAG yolu `qwen3:4b` kullanarak T?rk?e a??klama ?retir; kaynak al?nt?s?, belirli de?er/anlam kurallar? ve ikinci model kontrol? uygular. Kontroller ba?ar?s?zsa belirsizlik g?sterir. ?AI Debug Details? i?inde do?rulanmam?? taslak g?r?lebilir. `VERIFIED` etiketi kaynak e?le?mesini belirtir; makine ayar?n?n uygunlu?unu veya g?venli?ini garanti etmez.
+Genel RAG yolu `qwen3:4b` kullanarak Türkçe açıklama üretir; kaynak alıntısı, belirli değer/anlam kuralları ve ikinci model kontrolü uygular. Kontroller başarısızsa belirsizlik gösterir. “AI Debug Details” içinde doğrulanmamış taslak görülebilir. `VERIFIED` etiketi kaynak eşleşmesini belirtir; makine ayarının uygunluğunu veya güvenliğini garanti etmez.
 
-## Kurulum ? Windows PowerShell
+## Kurulum — Windows PowerShell
 
-Bu kopyada Python **3.12.10**, PyMuPDF **1.28.2** ve Streamlit **1.67.0** ile kurulum ve se?ili offline testler do?ruland?. Di?er s?r?mler i?in uyumluluk garantisi verilmez. Requirements s?r?m aral?klar? kullan?r; kilitlenmi? ortam de?ildir.
+Bu kopyada Python **3.12.10**, PyMuPDF **1.28.2** ve Streamlit **1.67.0** ile kurulum ve seçili offline testler doğrulandı. Diğer sürümler için uyumluluk garantisi verilmez. Requirements sürüm aralıkları kullanır; kilitlenmiş ortam değildir.
 
-Proje klas?r?nde:
+Proje klasöründe:
 
 ```powershell
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Python ba??ml?l?klar? PyMuPDF ve Streamlit'tir. `fitz`, PyMuPDF'nin alternatif import ad?d?r; ayr? bir `fitz` paketi kurmay?n. Ollama ve model a??rl?klar? requirements ile kurulmaz.
+Python bağımlılıkları PyMuPDF ve Streamlit'tir. `fitz`, PyMuPDF'nin alternatif import adıdır; ayrı bir `fitz` paketi kurmayın. Ollama ve model ağırlıkları requirements ile kurulmaz.
 
-Yaln?z Document Search i?in model gerekmez. Model ?zellikleri i?in Ollama'y? ayr?ca kurun; bir kez gerekli modelleri indirin:
+Yalnız Document Search için model gerekmez. Model özellikleri için Ollama'yı ayrıca kurun; bir kez gerekli modelleri indirin:
 
 ```powershell
 ollama pull bge-m3
 ollama pull qwen3:4b
 ```
 
-BGE-M3, Semantic ve Hybrid Search i?indir; Qwen, AI Assistant ve iste?e ba?l? Qwen tan? ara?lar? i?indir. Ollama uygulamas? zaten servis veriyorsa ikinci servis ba?latmay?n; gerekti?inde `ollama serve` kullan?l?r. Paket ve model indirmeleri internet gerektirebilir. Kurulum tamamland?ktan sonra uygulama yerel PDF'ler ve yerel servislerle kullan?labilir; uygulama kendili?inden model indirmez.
+BGE-M3, Semantic ve Hybrid Search içindir; Qwen, AI Assistant ve isteğe bağlı Qwen tanı araçları içindir. Ollama uygulaması zaten servis veriyorsa ikinci servis başlatmayın; gerektiğinde `ollama serve` kullanılır. Paket ve model indirmeleri internet gerektirebilir. Kurulum tamamlandıktan sonra uygulama yerel PDF'ler ve yerel servislerle kullanılabilir; uygulama kendiliğinden model indirmez.
 
-Yetkili PDF'lerinizi `manuals/` i?ine ekleyin, ard?ndan:
+Yetkili PDF'lerinizi `manuals/` içine ekleyin, ardından:
 
 ```powershell
 .\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-Aray?z `http://127.0.0.1:8501` adresindedir. `.streamlit/config.toml` loopback adresini kullan?r ve kullan?m istatistiklerini kapat?r. Durdurmak i?in Ctrl+C kullan?n. Komut sat?r? alternatifi:
+Arayüz `http://127.0.0.1:8501` adresindedir. `.streamlit/config.toml` loopback adresini kullanır ve kullanım istatistiklerini kapatır. Durdurmak için Ctrl+C kullanın. Komut satırı alternatifi:
 
 ```powershell
 .\.venv\Scripts\python.exe main.py
 ```
 
-Ana uygulaman?n model istekleri yerel Ollama portu `11434` ?zerindedir; ilgili istemciler ortam proxy'lerini ve HTTP y?nlendirmelerini engeller. PDF ve cache dosyalar?n?n ba?ka ara?larla payla??lmamas? kullan?c?n?n sorumlulu?undad?r.
+Ana uygulamanın model istekleri yerel Ollama portu `11434` üzerindedir; ilgili istemciler ortam proxy'lerini ve HTTP yönlendirmelerini engeller. PDF ve cache dosyalarının başka araçlarla paylaşılmaması kullanıcının sorumluluğundadır.
 
 ## Offline testler
 
-Yaln?z bu pakette bulunan testleri ?al??t?r?n:
+Yalnız bu pakette bulunan testleri çalıştırın:
 
 ```powershell
 .\.venv\Scripts\python.exe -B -m unittest -v test_pdf_text_cache test_performance_logging test_retrieval_timing test_semantic_search test_hybrid_parameter_sources
 ```
 
-Bu be? dosyadaki **22 test** yerel do?rulamada ge?ti. Testler sentetik/ge?ici veri ve mock kullan?r; ger?ek ?zel PDF veya ?al??an model gerektirmez. UI ayr?ca sentetik metadata ile Streamlit AppTest ?zerinden kontrol edildi; bu UI senaryolar? pakette kal?c? bir test dosyas? de?ildir. Offline ba?ar?, ger?ek modelin dil veya retrieval kalitesini ?l?mez. ?nceki k???k yerel canl? deneyler genel ba?ar? oran? veya performans garantisi olarak sunulmaz.
+Bu beş dosyadaki **22 test** yerel doğrulamada geçti. Testler sentetik/geçici veri ve mock kullanır; gerçek özel PDF veya çalışan model gerektirmez. UI ayrıca sentetik metadata ile Streamlit AppTest üzerinden kontrol edildi; bu UI senaryoları pakette kalıcı bir test dosyası değildir. Offline başarı, gerçek modelin dil veya retrieval kalitesini ölçmez. Önceki küçük yerel canlı deneyler genel başarı oranı veya performans garantisi olarak sunulmaz.
 
-`inspect_parameter_layout.py` kullan?c? taraf?ndan se?ilen PDF'nin yerle?imini inceleyen yard?mc? ara?t?r; ??kt?s? gizli metin i?erebilir. `qwen_chat_diagnostic.py` ve `qwen_response_diagnostic.py` iste?e ba?l? **canl? Qwen** tan? ara?lar?d?r; offline test de?ildir ve ham JSON raporu yazar. Bu ??kt?lar? payla?may?n.
+`inspect_parameter_layout.py` kullanıcı tarafından seçilen PDF'nin yerleşimini inceleyen yardımcı araçtır; çıktısı gizli metin içerebilir. `qwen_chat_diagnostic.py` ve `qwen_response_diagnostic.py` isteğe bağlı **canlı Qwen** tanı araçlarıdır; offline test değildir ve ham JSON raporu yazar. Bu çıktıları paylaşmayın.
 
-## Bilinen s?n?rlamalar ? v0.1 Experimental
+## Bilinen sınırlamalar — v0.1 Experimental
 
-- Se?ilebilir PDF metni gerekir; OCR yoktur. Alt klas?rler taranmaz; parola korumal? belgeler desteklenmez/atlan?r.
-- G?sterilen sayfalar PDF konumlar?d?r; bas?l? sayfa etiketlerinden farkl? olabilir.
-- Chunk'lar sayfa s?n?r?nda ayr?l?r ve kelime/c?mle b?lebilir. Sayfalar aras? kaynak geni?letme yaln?z a??k, tekil kimlikli ve do?rulanabilir ba?l?klarda uygulan?r; genel sorgular? d?zeltmez.
-- Ba?l?k/yerle?im kurallar? PDF d?zenine duyarl?d?r. Parser belirsizlikte kaynak geni?letmeyi reddeder; do?ru kaynaklar da reddedilebilir. ?ok sayfal? devamlar ve karma??k tablolar?n tamam? desteklenmez.
-- Hybrid kaynak geni?letme gerekti?inde PDF'yi tarar; yaln?z cache s?ralamas?ndan daha uzun s?rebilir. ?lk model y?klenmesi ve ilk indeksleme gecikmeyi art?rabilir.
-- Qwen yanl?? ?eviri, eksik cevap ve kendi hatas?n? onaylama davran??? g?sterebilir. Deterministik kurallar t?m teknik anlamlar? kapsamaz; ikinci model kontrol? do?ruluk kan?t? de?ildir.
-- Kontrol ?nitesi/dok?man s?r?m? uyumlulu?u ve ger?ek makine ?zerinde parametre se?iminin g?venli?i do?rulanmaz. Kayna?? uzman de?erlendirmesiyle kontrol edin.
+- Seçilebilir PDF metni gerekir; OCR yoktur. Alt klasörler taranmaz; parola korumalı belgeler desteklenmez/atlanır.
+- Gösterilen sayfalar PDF konumlarıdır; basılı sayfa etiketlerinden farklı olabilir.
+- Chunk'lar sayfa sınırında ayrılır ve kelime/cümle bölebilir. Sayfalar arası kaynak genişletme yalnız açık, tekil kimlikli ve doğrulanabilir başlıklarda uygulanır; genel sorguları düzeltmez.
+- Başlık/yerleşim kuralları PDF düzenine duyarlıdır. Parser belirsizlikte kaynak genişletmeyi reddeder; doğru kaynaklar da reddedilebilir. Çok sayfalı devamlar ve karmaşık tabloların tamamı desteklenmez.
+- Hybrid kaynak genişletme gerektiğinde PDF'yi tarar; yalnız cache sıralamasından daha uzun sürebilir. İlk model yüklenmesi ve ilk indeksleme gecikmeyi artırabilir.
+- Qwen yanlış çeviri, eksik cevap ve kendi hatasını onaylama davranışı gösterebilir. Deterministik kurallar tüm teknik anlamları kapsamaz; ikinci model kontrolü doğruluk kanıtı değildir.
+- Kontrol ünitesi/doküman sürümü uyumluluğu ve gerçek makine üzerinde parametre seçiminin güvenliği doğrulanmaz. Kaynağı uzman değerlendirmesiyle kontrol edin.
 
-Sorun giderme: `ModuleNotFoundError` i?in kullan?lan yorumlay?c?n?n `.venv` i?inden oldu?unu kontrol edin. Model bulunamad?/ba?lant? hatas?nda yerel Ollama ve istenen modelin kurulumunu kontrol edin. Hybrid cache yoksa Semantic Search ile olu?turun. A??k bit sorgular?nda sabit PDF yolu k?s?t?n? dikkate al?n. T?rk?e konsol ??kt?s?nda sorun varsa UTF-8 destekleyen terminal kullan?n.
+Sorun giderme: `ModuleNotFoundError` için kullanılan yorumlayıcının `.venv` içinden olduğunu kontrol edin. Model bulunamadı/bağlantı hatasında yerel Ollama ve istenen modelin kurulumunu kontrol edin. Hybrid cache yoksa Semantic Search ile oluşturun. Açık bit sorgularında sabit PDF yolu kısıtını dikkate alın. Türkçe konsol çıktısında sorun varsa UTF-8 destekleyen terminal kullanın.
 
-## Gizlilik ve payla??m
+## Gizlilik ve paylaşım
 
-`manuals/`, embedding/metin cache'leri, sanal ortam, ge?ici test ??kt?lar?, g?nl?kler ve yerel s?rlar Git'e al?nmamal?d?r. `.gitignore` bu veriler i?in koruma sa?lar; daha ?nce izlenen dosyalar? veya kod i?ine kopyalanm?? ?zel metni temizlemez. Commit ?ncesi kesin dosya listesini ayr?ca inceleyin.
+`manuals/`, embedding/metin cache'leri, sanal ortam, geçici test çıktıları, günlükler ve yerel sırlar Git'e alınmamalıdır. `.gitignore` bu veriler için koruma sağlar; daha önce izlenen dosyaları veya kod içine kopyalanmış özel metni temizlemez. Commit öncesi kesin dosya listesini ayrıca inceleyin.
 
-Bu pakette proje LICENSE dosyas? bulunmuyor. Kod sahipli?i, kamuya a??k payla??m yetkisi ve se?ilecek lisans hak sahipleri taraf?ndan netle?tirilmelidir; hen?z bir a??k kaynak lisans? verilmi? oldu?u varsay?lmamal?d?r. Kullan?lan ???nc? taraf paket ve modellerin kendi lisans ko?ullar? ayr?ca ge?erlidir.
+Bu pakette proje LICENSE dosyası bulunmuyor. Kod sahipliği, kamuya açık paylaşım yetkisi ve seçilecek lisans hak sahipleri tarafından netleştirilmelidir; henüz bir açık kaynak lisansı verilmiş olduğu varsayılmamalıdır. Kullanılan üçüncü taraf paket ve modellerin kendi lisans koşulları ayrıca geçerlidir.
